@@ -1,0 +1,105 @@
+<?php
+
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\LeadController;
+use App\Http\Controllers\Api\PropertyController;
+use App\Http\Controllers\Api\FollowUpController;
+use App\Http\Controllers\Api\ClientController;
+use App\Http\Controllers\Api\DealController;
+use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+|
+| Real Estate CRM API Routes
+| All routes are prefixed with /api
+|
+*/
+
+// Public routes (no authentication required)
+Route::prefix('auth')->group(function () {
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+});
+
+// Protected routes (authentication required)
+Route::middleware(['auth:sanctum', 'company'])->group(function () {
+    
+    // Auth
+    Route::prefix('auth')->group(function () {
+        Route::get('/user', [AuthController::class, 'user']);
+        Route::post('/logout', [AuthController::class, 'logout']);
+        Route::put('/profile', [AuthController::class, 'updateProfile']);
+        Route::put('/password', [AuthController::class, 'changePassword']);
+        Route::post('/onboarding', [AuthController::class, 'completeOnboarding']);
+    });
+
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index']);
+    Route::get('/dashboard/quick-stats', [DashboardController::class, 'quickStats']);
+
+    // Leads
+    Route::prefix('leads')->group(function () {
+        Route::get('/', [LeadController::class, 'index']);
+        Route::get('/kanban', [LeadController::class, 'kanban']);
+        Route::get('/sources', [LeadController::class, 'sources']);
+        Route::post('/', [LeadController::class, 'store']);
+        Route::get('/{id}', [LeadController::class, 'show']);
+        Route::put('/{id}', [LeadController::class, 'update']);
+        Route::patch('/{id}/status', [LeadController::class, 'updateStatus']);
+        Route::post('/{id}/convert', [LeadController::class, 'convertToClient']);
+        Route::delete('/{id}', [LeadController::class, 'destroy']);
+    });
+
+    // Properties
+    Route::prefix('properties')->group(function () {
+        Route::get('/', [PropertyController::class, 'index']);
+        Route::get('/stats', [PropertyController::class, 'stats']);
+        Route::post('/', [PropertyController::class, 'store']);
+        Route::get('/{id}', [PropertyController::class, 'show']);
+        Route::put('/{id}', [PropertyController::class, 'update']);
+        Route::patch('/{id}/status', [PropertyController::class, 'updateStatus']);
+        Route::post('/{id}/images', [PropertyController::class, 'uploadImages']);
+        Route::delete('/{id}', [PropertyController::class, 'destroy']);
+    });
+
+    // Follow-ups
+    Route::prefix('follow-ups')->group(function () {
+        Route::get('/', [FollowUpController::class, 'index']);
+        Route::get('/calendar', [FollowUpController::class, 'calendar']);
+        Route::get('/today', [FollowUpController::class, 'today']);
+        Route::get('/overdue', [FollowUpController::class, 'overdue']);
+        Route::post('/', [FollowUpController::class, 'store']);
+        Route::get('/{id}', [FollowUpController::class, 'show']);
+        Route::put('/{id}', [FollowUpController::class, 'update']);
+        Route::patch('/{id}/complete', [FollowUpController::class, 'complete']);
+        Route::patch('/{id}/reschedule', [FollowUpController::class, 'reschedule']);
+        Route::patch('/{id}/cancel', [FollowUpController::class, 'cancel']);
+        Route::delete('/{id}', [FollowUpController::class, 'destroy']);
+    });
+
+    // Clients
+    Route::prefix('clients')->group(function () {
+        Route::get('/', [ClientController::class, 'index']);
+        Route::post('/', [ClientController::class, 'store']);
+        Route::get('/{id}', [ClientController::class, 'show']);
+        Route::put('/{id}', [ClientController::class, 'update']);
+        Route::delete('/{id}', [ClientController::class, 'destroy']);
+    });
+
+    // Deals
+    Route::prefix('deals')->group(function () {
+        Route::get('/', [DealController::class, 'index']);
+        Route::get('/pipeline', [DealController::class, 'pipeline']);
+        Route::get('/stats', [DealController::class, 'stats']);
+        Route::post('/', [DealController::class, 'store']);
+        Route::get('/{id}', [DealController::class, 'show']);
+        Route::put('/{id}', [DealController::class, 'update']);
+        Route::patch('/{id}/stage', [DealController::class, 'updateStage']);
+        Route::patch('/{id}/payment', [DealController::class, 'updatePayment']);
+        Route::delete('/{id}', [DealController::class, 'destroy']);
+    });
+});
