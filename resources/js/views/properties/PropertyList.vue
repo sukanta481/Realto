@@ -6,7 +6,7 @@
                 <h1 class="text-3xl font-bold text-slate-900">Properties</h1>
                 <p class="text-slate-500 mt-1">Your property inventory</p>
             </div>
-            <button class="btn-primary">
+            <button class="btn-primary" @click="showPropertyModal = true">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
@@ -132,7 +132,7 @@
             </div>
             <h3 class="text-xl font-semibold text-slate-900 mb-2">No properties yet</h3>
             <p class="text-slate-500 mb-6">Start by adding your first property</p>
-            <button class="btn-primary">
+            <button class="btn-primary" @click="showPropertyModal = true">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
@@ -140,15 +140,23 @@
             </button>
         </div>
     </div>
+
+    <!-- Property Form Modal -->
+    <PropertyFormModal 
+        v-model="showPropertyModal"
+        @saved="handlePropertySaved"
+    />
 </template>
 
 <script setup>
 import { ref, reactive, onMounted, watch } from 'vue';
 import { propertiesApi } from '../../api';
+import PropertyFormModal from '../../components/common/PropertyFormModal.vue';
 
 const properties = ref([]);
 const stats = ref({ available: 0, sold: 0, rented: 0, hold: 0 });
 const loading = ref(true);
+const showPropertyModal = ref(false);
 
 const filters = reactive({
     search: '',
@@ -195,6 +203,11 @@ watch(filters, () => {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(fetchProperties, 300);
 });
+
+const handlePropertySaved = () => {
+    fetchProperties();
+    fetchStats();
+};
 
 onMounted(() => {
     fetchProperties();

@@ -13,6 +13,9 @@ import PropertyList from '../views/properties/PropertyList.vue';
 import PropertyDetail from '../views/properties/PropertyDetail.vue';
 import DealList from '../views/deals/DealList.vue';
 import FollowUpList from '../views/follow-ups/FollowUpList.vue';
+import TeamManagement from '../views/TeamManagement.vue';
+import Settings from '../views/Settings.vue';
+import Reports from '../views/Reports.vue';
 
 const routes = [
     // Auth routes (no layout)
@@ -69,6 +72,21 @@ const routes = [
                 path: 'follow-ups',
                 name: 'follow-ups',
                 component: FollowUpList,
+            },
+            {
+                path: 'team',
+                name: 'team',
+                component: TeamManagement,
+            },
+            {
+                path: 'settings',
+                name: 'settings',
+                component: Settings,
+            },
+            {
+                path: 'reports',
+                name: 'reports',
+                component: Reports,
             },
         ],
     },

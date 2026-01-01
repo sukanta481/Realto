@@ -28,24 +28,24 @@ class LeadController extends Controller
             $query->where('assigned_to', $user->id);
         }
 
-        // Filters
-        if ($request->has('status_id')) {
+        // Filters - use filled() to ignore empty strings
+        if ($request->filled('status_id')) {
             $query->where('lead_status_id', $request->status_id);
         }
 
-        if ($request->has('assigned_to')) {
+        if ($request->filled('assigned_to')) {
             $query->where('assigned_to', $request->assigned_to);
         }
 
-        if ($request->has('priority')) {
+        if ($request->filled('priority')) {
             $query->where('priority', $request->priority);
         }
 
-        if ($request->has('source')) {
+        if ($request->filled('source')) {
             $query->where('source', $request->source);
         }
 
-        if ($request->has('search')) {
+        if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -54,11 +54,11 @@ class LeadController extends Controller
             });
         }
 
-        if ($request->has('date_from')) {
+        if ($request->filled('date_from')) {
             $query->whereDate('created_at', '>=', $request->date_from);
         }
 
-        if ($request->has('date_to')) {
+        if ($request->filled('date_to')) {
             $query->whereDate('created_at', '<=', $request->date_to);
         }
 

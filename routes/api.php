@@ -7,6 +7,9 @@ use App\Http\Controllers\Api\PropertyController;
 use App\Http\Controllers\Api\FollowUpController;
 use App\Http\Controllers\Api\ClientController;
 use App\Http\Controllers\Api\DealController;
+use App\Http\Controllers\Api\SearchController;
+use App\Http\Controllers\Api\ExportController;
+use App\Http\Controllers\Api\ReportController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -37,6 +40,9 @@ Route::middleware(['auth:sanctum', 'company'])->group(function () {
         Route::post('/onboarding', [AuthController::class, 'completeOnboarding']);
     });
 
+    // Global Search
+    Route::get('/search', [SearchController::class, 'search']);
+
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index']);
     Route::get('/dashboard/quick-stats', [DashboardController::class, 'quickStats']);
@@ -63,6 +69,8 @@ Route::middleware(['auth:sanctum', 'company'])->group(function () {
         Route::put('/{id}', [PropertyController::class, 'update']);
         Route::patch('/{id}/status', [PropertyController::class, 'updateStatus']);
         Route::post('/{id}/images', [PropertyController::class, 'uploadImages']);
+        Route::delete('/{id}/images/{imageId}', [PropertyController::class, 'deleteImage']);
+        Route::patch('/{id}/images/{imageId}/primary', [PropertyController::class, 'setPrimaryImage']);
         Route::delete('/{id}', [PropertyController::class, 'destroy']);
     });
 
@@ -101,5 +109,21 @@ Route::middleware(['auth:sanctum', 'company'])->group(function () {
         Route::patch('/{id}/stage', [DealController::class, 'updateStage']);
         Route::patch('/{id}/payment', [DealController::class, 'updatePayment']);
         Route::delete('/{id}', [DealController::class, 'destroy']);
+    });
+
+    // Exports
+    Route::prefix('export')->group(function () {
+        Route::get('/leads', [ExportController::class, 'exportLeads']);
+        Route::get('/properties', [ExportController::class, 'exportProperties']);
+        Route::get('/deals', [ExportController::class, 'exportDeals']);
+        Route::get('/monthly-summary', [ExportController::class, 'exportMonthlySummary']);
+    });
+
+    // Reports & Analytics
+    Route::prefix('reports')->group(function () {
+        Route::get('/lead-analytics', [ReportController::class, 'leadAnalytics']);
+        Route::get('/revenue-analytics', [ReportController::class, 'revenueAnalytics']);
+        Route::get('/property-analytics', [ReportController::class, 'propertyAnalytics']);
+        Route::get('/team-performance', [ReportController::class, 'teamPerformance']);
     });
 });

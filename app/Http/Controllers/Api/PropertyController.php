@@ -427,23 +427,113 @@ class PropertyController extends Controller
         }
 
         $uploadedImages = [];
-        foreach ($request->file('images') as $image) {
+        $hasExistingImages = $property->propertyImages()->exists();
+        $order = $property->propertyImages()->max('order') ?? 0;
+
+        foreach ($request->file('images') as $index => $image) {
             $path = $image->store('properties/' . $property->id, 'public');
-            $uploadedImages[] = Storage::url($path);
+            
+            $propertyImage = $property->propertyImages()->create([
+                'filename' => $image->getClientOriginalName(),
+                'path' => $path,
+                'disk' => 'public',
+                'mime_type' => $image->getMimeType(),
+                'size' => $image->getSize(),
+                'is_primary' => !$hasExistingImages && $index === 0,
+                'order' => ++$order,
+            ]);
+
+            $uploadedImages[] = $propertyImage;
         }
 
-        // Merge with existing images
-        $existingImages = $property->images ?? [];
-        $property->update([
-            'images' => array_merge($existingImages, $uploadedImages),
-        ]);
+        $count = count($uploadedImages);
+        ActivityLog::log('updated', "Added {$count} image(s) to property: {$property->title}", $property);
 
         return response()->json([
             'success' => true,
-            'message' => 'Images uploaded successfully',
-            'data' => [
-                'images' => $property->images,
-            ],
+            'message' => count($uploadedImages) . ' image(s) uploaded successfully',
+            'data' => $uploadedImages,
+        ]);
+    }
+
+    /**
+     * Delete a property image.
+     */
+    public function deleteImage(Request $request, $id, $imageId)
+    {
+        $user = $request->user();
+
+        $property = Property::ofCompany($user->company_id)->find($id);
+
+        if (!$property) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Property not found',
+            ], 404);
+        }
+
+        $image = $property->propertyImages()->find($imageId);
+
+        if (!$image) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Image not found',
+            ], 404);
+        }
+
+        $wasPrimary = $image->is_primary;
+        $image->delete(); // This will also delete the file via model boot method
+
+        // If deleted image was primary, set first remaining image as primary
+        if ($wasPrimary) {
+            $firstImage = $property->propertyImages()->first();
+            if ($firstImage) {
+                $firstImage->update(['is_primary' => true]);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Image deleted successfully',
+        ]);
+    }
+
+    /**
+     * Set an image as primary.
+     */
+    public function setPrimaryImage(Request $request, $id, $imageId)
+    {
+        $user = $request->user();
+
+        $property = Property::ofCompany($user->company_id)->find($id);
+
+        if (!$property) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Property not found',
+            ], 404);
+        }
+
+        $image = $property->propertyImages()->find($imageId);
+
+        if (!$image) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Image not found',
+            ], 404);
+        }
+
+        // Remove primary from all images
+        $property->propertyImages()->update(['is_primary' => false]);
+        
+        // Set this image as primary
+        $image->update(['is_primary' => true]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Primary image updated',
+            'data' => $image,
         ]);
     }
 }
+

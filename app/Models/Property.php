@@ -116,6 +116,22 @@ class Property extends Model
     }
 
     /**
+     * Get the property images.
+     */
+    public function propertyImages()
+    {
+        return $this->hasMany(PropertyImage::class)->ordered();
+    }
+
+    /**
+     * Get the primary image from property_images table.
+     */
+    public function primaryImage()
+    {
+        return $this->hasOne(PropertyImage::class)->where('is_primary', true);
+    }
+
+    /**
      * Scope to get properties of a specific company.
      */
     public function scopeOfCompany($query, $companyId)
