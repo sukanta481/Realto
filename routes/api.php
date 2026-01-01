@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\DealController;
 use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\ExportController;
 use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\DeployController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,6 +28,9 @@ Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
 });
+
+// Deployment webhook (GitHub)
+Route::post('/deploy', [DeployController::class, 'deploy']);
 
 // Protected routes (authentication required)
 Route::middleware(['auth:sanctum', 'company'])->group(function () {
