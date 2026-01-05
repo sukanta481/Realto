@@ -5,6 +5,9 @@ import { useAuthStore } from '../stores/auth';
 import Login from '../views/auth/Login.vue';
 import Register from '../views/auth/Register.vue';
 
+// Public views
+import Home from '../views/public/Home.vue';
+
 // Main views
 import Dashboard from '../views/Dashboard.vue';
 import LeadList from '../views/leads/LeadList.vue';
@@ -18,6 +21,14 @@ import Settings from '../views/Settings.vue';
 import Reports from '../views/Reports.vue';
 
 const routes = [
+    // Public routes
+    {
+        path: '/',
+        name: 'home',
+        component: Home,
+        meta: { public: true },
+    },
+
     // Auth routes (no layout)
     {
         path: '/login',
@@ -32,9 +43,9 @@ const routes = [
         meta: { guest: true },
     },
 
-    // Protected routes with layout
+    // Protected routes with layout (CRM Dashboard)
     {
-        path: '/',
+        path: '/app',
         component: () => import('../components/layout/AppLayout.vue'),
         meta: { requiresAuth: true },
         children: [
@@ -101,11 +112,23 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(),
     routes,
+    scrollBehavior(to, from, savedPosition) {
+        // Scroll to top on route change
+        if (savedPosition) {
+            return savedPosition;
+        }
+        return { top: 0 };
+    },
 });
 
 // Navigation guard
 router.beforeEach(async (to, from, next) => {
     const authStore = useAuthStore();
+
+    // Public routes don't need auth check
+    if (to.meta.public) {
+        return next();
+    }
 
     // Check if route requires auth
     if (to.meta.requiresAuth && !authStore.token) {
