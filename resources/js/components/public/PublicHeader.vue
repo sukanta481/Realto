@@ -16,12 +16,12 @@
 
                 <!-- Desktop Navigation -->
                 <nav class="hidden lg:flex items-center gap-1">
-                    <a v-for="item in navItems" :key="item.name" 
-                       :href="item.href"
+                    <router-link v-for="item in navItems" :key="item.name" 
+                       :to="item.href"
                        class="nav-link px-4 py-2 text-gray-600 font-medium rounded-lg hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 relative group">
                         {{ item.name }}
                         <span class="absolute bottom-0 left-1/2 w-0 h-0.5 bg-blue-600 group-hover:w-1/2 group-hover:left-1/4 transition-all duration-300"></span>
-                    </a>
+                    </router-link>
                 </nav>
 
                 <!-- Desktop Actions -->
@@ -61,11 +61,11 @@
                 leave-to-class="opacity-0 -translate-y-2">
                 <div v-if="isMenuOpen" class="lg:hidden py-4 border-t border-gray-100">
                     <nav class="flex flex-col gap-1">
-                        <a v-for="item in navItems" :key="item.name" 
-                           :href="item.href"
+                        <router-link v-for="item in navItems" :key="item.name" 
+                           :to="item.href"
                            class="px-4 py-3 text-gray-600 font-medium rounded-lg hover:text-blue-600 hover:bg-blue-50 transition-all">
                             {{ item.name }}
-                        </a>
+                        </router-link>
                         <div class="flex flex-col gap-2 mt-4 pt-4 border-t border-gray-100">
                             <button @click="handleAuthClick" class="px-4 py-3 text-center text-gray-600 font-medium rounded-lg hover:bg-gray-100 transition-all">
                                 {{ isAuthenticated ? 'Dashboard' : 'Login' }}
@@ -92,10 +92,10 @@ const isScrolled = ref(false);
 const isMenuOpen = ref(false);
 
 const navItems = [
-    { name: 'Residential', href: '#residential' },
-    { name: 'Commercial', href: '#commercial' },
-    { name: 'Services', href: '#services' },
-    { name: 'About', href: '#about' },
+    { name: 'Residential', href: '/residential' },
+    { name: 'Commercial', href: '/commercial' },
+    { name: 'Services', href: '/services' },
+    { name: 'About', href: '/about' },
 ];
 
 const isAuthenticated = computed(() => !!authStore.token);

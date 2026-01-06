@@ -28,6 +28,36 @@ const routes = [
         component: Home,
         meta: { public: true },
     },
+    {
+        path: '/residential',
+        name: 'residential',
+        component: () => import('../views/public/Residential.vue'),
+        meta: { public: true },
+    },
+    {
+        path: '/commercial',
+        name: 'commercial',
+        component: () => import('../views/public/Commercial.vue'),
+        meta: { public: true },
+    },
+    {
+        path: '/services',
+        name: 'services',
+        component: () => import('../views/public/Services.vue'),
+        meta: { public: true },
+    },
+    {
+        path: '/about',
+        name: 'about',
+        component: () => import('../views/public/About.vue'),
+        meta: { public: true },
+    },
+    {
+        path: '/contact',
+        name: 'contact',
+        component: () => import('../views/public/Contact.vue'),
+        meta: { public: true },
+    },
 
     // Auth routes (no layout)
     {
