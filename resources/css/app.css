@@ -216,6 +216,18 @@
         @apply absolute left-0 w-1 h-8 bg-indigo-500 rounded-r-full;
     }
 
+    .sidebar-link-sub {
+        @apply block px-3 py-2 text-sm text-slate-600 font-medium rounded-lg transition-all duration-200;
+    }
+
+    .sidebar-link-sub:hover {
+        @apply bg-slate-100 text-slate-900;
+    }
+
+    .sidebar-link-sub.active {
+        @apply text-indigo-600 bg-indigo-50;
+    }
+
     /* Touch Targets for Mobile */
     .touch-target {
         @apply min-h-[52px] min-w-[52px];

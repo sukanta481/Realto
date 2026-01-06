@@ -535,5 +535,34 @@ class PropertyController extends Controller
             'data' => $image,
         ]);
     }
+
+    /**
+     * Toggle property publish status.
+     */
+    public function togglePublish(Request $request, $id)
+    {
+        $user = $request->user();
+
+        $property = Property::ofCompany($user->company_id)->find($id);
+
+        if (!$property) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Property not found',
+            ], 404);
+        }
+
+        $property->is_published = !$property->is_published;
+        $property->save();
+
+        $status = $property->is_published ? 'published' : 'unpublished';
+        ActivityLog::log('updated', "Property {$status}: {$property->title}", $property);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Property {$status} successfully",
+            'data' => $property,
+        ]);
+    }
 }
 

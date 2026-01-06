@@ -129,6 +129,11 @@ const routes = [
                 name: 'reports',
                 component: Reports,
             },
+            {
+                path: 'content/:pageKey',
+                name: 'content-editor',
+                component: () => import('../views/content/ContentEditor.vue'),
+            },
         ],
     },
 

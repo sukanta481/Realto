@@ -73,6 +73,7 @@ export const propertiesApi = {
     create: (data) => api.post('/properties', data),
     update: (id, data) => api.put(`/properties/${id}`, data),
     updateStatus: (id, status) => api.patch(`/properties/${id}/status`, { status }),
+    togglePublish: (id) => api.patch(`/properties/${id}/publish`),
     uploadImages: (id, formData) => api.post(`/properties/${id}/images`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
     }),

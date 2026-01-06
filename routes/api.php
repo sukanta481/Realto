@@ -130,4 +130,28 @@ Route::middleware(['auth:sanctum', 'company'])->group(function () {
         Route::get('/property-analytics', [ReportController::class, 'propertyAnalytics']);
         Route::get('/team-performance', [ReportController::class, 'teamPerformance']);
     });
+
+    // Content Management (CMS)
+    Route::prefix('content')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Api\PageContentController::class, 'index']);
+        Route::get('/pages', [\App\Http\Controllers\Api\PageContentController::class, 'getPages']);
+        Route::get('/{pageKey}', [\App\Http\Controllers\Api\PageContentController::class, 'getPage']);
+        Route::put('/{pageKey}/{sectionKey}', [\App\Http\Controllers\Api\PageContentController::class, 'update']);
+        Route::post('/{pageKey}/bulk', [\App\Http\Controllers\Api\PageContentController::class, 'bulkUpdate']);
+        Route::post('/upload-image', [\App\Http\Controllers\Api\PageContentController::class, 'uploadImage']);
+        Route::delete('/{id}', [\App\Http\Controllers\Api\PageContentController::class, 'destroy']);
+    });
+
+    // Property publish toggle
+    Route::patch('/properties/{id}/publish', [PropertyController::class, 'togglePublish']);
 });
+
+// Public API routes (no authentication required)
+Route::prefix('public')->group(function () {
+    Route::get('/properties', [\App\Http\Controllers\Api\PublicController::class, 'getProperties']);
+    Route::get('/properties/featured', [\App\Http\Controllers\Api\PublicController::class, 'getFeaturedProperties']);
+    Route::get('/properties/{id}', [\App\Http\Controllers\Api\PublicController::class, 'getProperty']);
+    Route::get('/content/{pageKey}', [\App\Http\Controllers\Api\PublicController::class, 'getPageContent']);
+    Route::get('/stats', [\App\Http\Controllers\Api\PublicController::class, 'getStats']);
+});
+

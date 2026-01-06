@@ -128,6 +128,82 @@
                     </svg>
                     <span>Settings</span>
                 </router-link>
+
+                <hr class="my-2 border-slate-100" />
+
+                <!-- Content Management Section -->
+                <div class="space-y-1">
+                    <button 
+                        @click="contentMenuOpen = !contentMenuOpen"
+                        class="sidebar-link relative w-full justify-between"
+                        :class="{ 'active': $route.path.startsWith('/app/content') }"
+                    >
+                        <div class="flex items-center gap-3">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                            <span>Content</span>
+                        </div>
+                        <svg 
+                            :class="['w-4 h-4 transition-transform', contentMenuOpen ? 'rotate-180' : '']" 
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+
+                    <transition
+                        enter-active-class="transition duration-200 ease-out"
+                        enter-from-class="opacity-0 -translate-y-1"
+                        enter-to-class="opacity-100 translate-y-0"
+                        leave-active-class="transition duration-150 ease-in"
+                        leave-from-class="opacity-100 translate-y-0"
+                        leave-to-class="opacity-0 -translate-y-1"
+                    >
+                        <div v-if="contentMenuOpen" class="ml-4 pl-4 border-l-2 border-slate-100 space-y-1">
+                            <router-link 
+                                to="/app/content/home"
+                                class="sidebar-link-sub"
+                                :class="{ 'active': $route.path === '/app/content/home' }"
+                                @click.native="sidebarOpen = false"
+                            >
+                                Home Page
+                            </router-link>
+                            <router-link 
+                                to="/app/content/about"
+                                class="sidebar-link-sub"
+                                :class="{ 'active': $route.path === '/app/content/about' }"
+                                @click.native="sidebarOpen = false"
+                            >
+                                About Page
+                            </router-link>
+                            <router-link 
+                                to="/app/content/services"
+                                class="sidebar-link-sub"
+                                :class="{ 'active': $route.path === '/app/content/services' }"
+                                @click.native="sidebarOpen = false"
+                            >
+                                Services Page
+                            </router-link>
+                            <router-link 
+                                to="/app/content/contact"
+                                class="sidebar-link-sub"
+                                :class="{ 'active': $route.path === '/app/content/contact' }"
+                                @click.native="sidebarOpen = false"
+                            >
+                                Contact Page
+                            </router-link>
+                            <router-link 
+                                to="/app/content/testimonials"
+                                class="sidebar-link-sub"
+                                :class="{ 'active': $route.path === '/app/content/testimonials' }"
+                                @click.native="sidebarOpen = false"
+                            >
+                                Testimonials
+                            </router-link>
+                        </div>
+                    </transition>
+                </div>
             </nav>
 
             <!-- User section -->
@@ -257,6 +333,7 @@ const router = useRouter();
 
 const sidebarOpen = ref(false);
 const showSearch = ref(false);
+const contentMenuOpen = ref(false);
 
 const userInitials = computed(() => {
     const name = authStore.user?.name || '';

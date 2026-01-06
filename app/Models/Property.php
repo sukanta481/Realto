@@ -17,6 +17,7 @@ class Property extends Model
         'title',
         'description',
         'listing_type',
+        'category',
         'address',
         'locality',
         'city',
@@ -54,6 +55,7 @@ class Property extends Model
         'source',
         'is_featured',
         'is_active',
+        'is_published',
     ];
 
     protected $casts = [
@@ -70,6 +72,7 @@ class Property extends Model
         'price_negotiable' => 'boolean',
         'is_featured' => 'boolean',
         'is_active' => 'boolean',
+        'is_published' => 'boolean',
         'possession_date' => 'date',
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',

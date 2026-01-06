@@ -119,6 +119,20 @@
                         <p class="text-xl font-bold text-indigo-600">{{ formatPrice(property.price) }}</p>
                         <p class="text-sm text-slate-500">{{ property.bhk || '' }} {{ formatArea(property) }}</p>
                     </div>
+                    <!-- Publish Toggle -->
+                    <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
+                        <span class="text-sm text-slate-600">Publish to Website</span>
+                        <button 
+                            @click.stop="togglePublish(property)"
+                            class="relative w-11 h-6 rounded-full transition-colors"
+                            :class="property.is_published ? 'bg-emerald-500' : 'bg-slate-200'"
+                        >
+                            <span 
+                                class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform"
+                                :class="property.is_published ? 'translate-x-5' : ''"
+                            ></span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -207,6 +221,17 @@ watch(filters, () => {
 const handlePropertySaved = () => {
     fetchProperties();
     fetchStats();
+};
+
+const togglePublish = async (property) => {
+    try {
+        const response = await propertiesApi.togglePublish(property.id);
+        if (response.data.success) {
+            property.is_published = response.data.data.is_published;
+        }
+    } catch (error) {
+        console.error('Failed to toggle publish:', error);
+    }
 };
 
 onMounted(() => {
