@@ -1,7 +1,18 @@
 import axios from 'axios';
 
+// Dynamically determine the API base URL based on current location
+const getBaseUrl = () => {
+    const path = window.location.pathname;
+    // Check if we're in a subdirectory (e.g., /realto/public/)
+    const match = path.match(/^(\/[^\/]+\/public)/);
+    if (match) {
+        return match[1] + '/api';
+    }
+    return '/api';
+};
+
 const api = axios.create({
-    baseURL: '/api',
+    baseURL: getBaseUrl(),
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',

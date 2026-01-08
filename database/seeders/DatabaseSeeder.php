@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,11 +14,42 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // \App\Models\User::factory(10)->create();
+        // Create default roles
+        $roles = [
+            [
+                'name' => 'admin',
+                'display_name' => 'Administrator',
+                'permissions' => ['*'],
+            ],
+            [
+                'name' => 'manager',
+                'display_name' => 'Manager',
+                'permissions' => [
+                    'leads.view', 'leads.create', 'leads.edit', 'leads.delete',
+                    'properties.view', 'properties.create', 'properties.edit', 'properties.delete',
+                    'deals.view', 'deals.create', 'deals.edit', 'deals.delete',
+                    'follow-ups.view', 'follow-ups.create', 'follow-ups.edit', 'follow-ups.delete',
+                    'team.view',
+                    'reports.view',
+                ],
+            ],
+            [
+                'name' => 'agent',
+                'display_name' => 'Sales Agent',
+                'permissions' => [
+                    'leads.view', 'leads.create', 'leads.edit',
+                    'properties.view',
+                    'deals.view', 'deals.create', 'deals.edit',
+                    'follow-ups.view', 'follow-ups.create', 'follow-ups.edit',
+                ],
+            ],
+        ];
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        foreach ($roles as $roleData) {
+            Role::updateOrCreate(
+                ['name' => $roleData['name']],
+                $roleData
+            );
+        }
     }
 }

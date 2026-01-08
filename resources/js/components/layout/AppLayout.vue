@@ -2,11 +2,11 @@
     <div class="min-h-screen bg-slate-50">
         <!-- Desktop Sidebar -->
         <aside 
-            class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200/80 transform transition-transform duration-300 lg:translate-x-0"
+            class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200/80 transform transition-transform duration-300 lg:translate-x-0 flex flex-col"
             :class="{ '-translate-x-full': !sidebarOpen }"
         >
             <!-- Logo -->
-            <div class="flex items-center justify-between h-20 px-6 border-b border-slate-100">
+            <div class="flex items-center justify-between h-20 px-6 border-b border-slate-100 flex-shrink-0">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-lg" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">
                         R
@@ -29,9 +29,9 @@
             </div>
 
             <!-- Navigation -->
-            <nav class="p-4 space-y-1.5">
+            <nav class="p-4 space-y-1.5 flex-1 overflow-y-auto scrollbar-hide">
                 <router-link 
-                    to="/" 
+                    to="/app" 
                     class="sidebar-link relative"
                     :class="{ 'active': $route.name === 'dashboard' }"
                     @click.native="sidebarOpen = false"
@@ -43,9 +43,9 @@
                 </router-link>
 
                 <router-link 
-                    to="/leads" 
+                    to="/app/leads" 
                     class="sidebar-link relative"
-                    :class="{ 'active': $route.path.startsWith('/leads') }"
+                    :class="{ 'active': $route.path.startsWith('/app/leads') }"
                     @click.native="sidebarOpen = false"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -55,9 +55,9 @@
                 </router-link>
 
                 <router-link 
-                    to="/properties" 
+                    to="/app/properties" 
                     class="sidebar-link relative"
-                    :class="{ 'active': $route.path.startsWith('/properties') }"
+                    :class="{ 'active': $route.path.startsWith('/app/properties') }"
                     @click.native="sidebarOpen = false"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -67,9 +67,9 @@
                 </router-link>
 
                 <router-link 
-                    to="/deals" 
+                    to="/app/deals" 
                     class="sidebar-link relative"
-                    :class="{ 'active': $route.path.startsWith('/deals') }"
+                    :class="{ 'active': $route.path.startsWith('/app/deals') }"
                     @click.native="sidebarOpen = false"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -79,9 +79,9 @@
                 </router-link>
 
                 <router-link 
-                    to="/follow-ups" 
+                    to="/app/follow-ups" 
                     class="sidebar-link relative"
-                    :class="{ 'active': $route.path.startsWith('/follow-ups') }"
+                    :class="{ 'active': $route.path.startsWith('/app/follow-ups') }"
                     @click.native="sidebarOpen = false"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -93,9 +93,9 @@
                 <hr class="my-2 border-slate-100" />
 
                 <router-link 
-                    to="/team" 
+                    to="/app/team" 
                     class="sidebar-link relative"
-                    :class="{ 'active': $route.path.startsWith('/team') }"
+                    :class="{ 'active': $route.path.startsWith('/app/team') }"
                     @click.native="sidebarOpen = false"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -105,9 +105,9 @@
                 </router-link>
 
                 <router-link 
-                    to="/reports" 
+                    to="/app/reports" 
                     class="sidebar-link relative"
-                    :class="{ 'active': $route.path.startsWith('/reports') }"
+                    :class="{ 'active': $route.path.startsWith('/app/reports') }"
                     @click.native="sidebarOpen = false"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -117,9 +117,9 @@
                 </router-link>
 
                 <router-link 
-                    to="/settings" 
+                    to="/app/settings" 
                     class="sidebar-link relative"
-                    :class="{ 'active': $route.path.startsWith('/settings') }"
+                    :class="{ 'active': $route.path.startsWith('/app/settings') }"
                     @click.native="sidebarOpen = false"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

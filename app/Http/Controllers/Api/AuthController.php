@@ -36,52 +36,67 @@ class AuthController extends Controller
             ], 422);
         }
 
-        // Create company
-        $company = Company::create([
-            'name' => $request->company_name,
-            'slug' => Str::slug($request->company_name) . '-' . Str::random(5),
-            'city' => $request->city,
-        ]);
+        try {
+            // Get admin role first to check it exists
+            $adminRole = Role::where('name', 'admin')->first();
+            
+            if (!$adminRole) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'System configuration error: Admin role not found. Please run database seeders.',
+                ], 500);
+            }
 
-        // Create default lead statuses and property types
-        $company->createDefaultLeadStatuses();
-        $company->createDefaultPropertyTypes();
+            // Create company
+            $company = Company::create([
+                'name' => $request->company_name,
+                'slug' => Str::slug($request->company_name) . '-' . Str::random(5),
+                'city' => $request->city,
+            ]);
 
-        // Get admin role
-        $adminRole = Role::where('name', 'admin')->first();
+            // Create default lead statuses and property types
+            $company->createDefaultLeadStatuses();
+            $company->createDefaultPropertyTypes();
 
-        // Create admin user
-        $user = User::create([
-            'company_id' => $company->id,
-            'role_id' => $adminRole->id,
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'password' => Hash::make($request->password),
-            'is_active' => true,
-        ]);
+            // Create admin user
+            $user = User::create([
+                'company_id' => $company->id,
+                'role_id' => $adminRole->id,
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'password' => Hash::make($request->password),
+                'is_active' => true,
+            ]);
 
-        // Create API token
-        $token = $user->createToken('auth-token')->plainTextToken;
+            // Create API token
+            $token = $user->createToken('auth-token')->plainTextToken;
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Registration successful',
-            'data' => [
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'phone' => $user->phone,
-                    'role' => $adminRole->display_name,
+            return response()->json([
+                'success' => true,
+                'message' => 'Registration successful',
+                'data' => [
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'phone' => $user->phone,
+                        'role' => $adminRole->display_name,
+                    ],
+                    'company' => [
+                        'id' => $company->id,
+                        'name' => $company->name,
+                    ],
+                    'token' => $token,
                 ],
-                'company' => [
-                    'id' => $company->id,
-                    'name' => $company->name,
-                ],
-                'token' => $token,
-            ],
-        ], 201);
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Registration failed: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
