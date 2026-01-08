@@ -9,7 +9,7 @@
                         Why Us
                     </h2>
                     <p class="text-slate-600 text-lg mb-8 leading-relaxed">
-                        At The Core Realtors, we've been helping customers through the Gurugram, Delhi NCR India region find their dream homes since 2010. We understand your needs and provide personalized solutions to match your lifestyle and budget.
+                        At Realto, we've been helping customers through the Gurugram, Delhi NCR India region find their dream homes since 2010. We understand your needs and provide personalized solutions to match your lifestyle and budget.
                     </p>
                     <p class="text-slate-600 mb-8">
                         Our commitment to professionalism and customer satisfaction sets us apart. We believe in building lasting relationships with our clients.

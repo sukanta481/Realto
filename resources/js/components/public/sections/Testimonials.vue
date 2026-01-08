@@ -52,7 +52,7 @@ const testimonials = [
         name: 'Rohit Sharma',
         role: 'Business Owner',
         avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
-        text: 'The Core Realtors made our home buying journey so smooth. They understood our needs perfectly and found us a beautiful property in DLF Phase 3.'
+        text: 'Realto made our home buying journey so smooth. They understood our needs perfectly and found us a beautiful property in DLF Phase 3.'
     },
     {
         id: 2,

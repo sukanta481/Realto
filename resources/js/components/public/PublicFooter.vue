@@ -33,7 +33,7 @@
                                 <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
                             </svg>
                         </div>
-                        <span class="text-xl font-bold">The Core Realtors</span>
+                        <span class="text-xl font-bold">Realto</span>
                     </div>
                     <p class="text-slate-400 mb-6 leading-relaxed">
                         Your trusted partner in finding the perfect property. We make your dream home a reality.
@@ -135,7 +135,7 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div class="flex flex-col md:flex-row items-center justify-between gap-4">
                     <p class="text-slate-400 text-sm">
-                        © 2026 The Core Realtors. All Rights Reserved.
+                        © 2026 Realto. All Rights Reserved.
                     </p>
                     <div class="flex items-center gap-6">
                         <a href="#" class="text-slate-400 text-sm hover:text-white transition-colors">Privacy Policy</a>

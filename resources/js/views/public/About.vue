@@ -28,7 +28,7 @@
                             <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-500">One Home at a Time</span>
                         </h2>
                         <p class="text-slate-600 mb-6 leading-relaxed">
-                            The Core Realtors was founded with a simple mission: to make property buying a delightful experience. What started as a small team with big dreams has grown into one of the NCR region's most trusted real estate consultancies.
+                            Realto was founded with a simple mission: to make property buying a delightful experience. What started as a small team with big dreams has grown into one of the NCR region's most trusted real estate consultancies.
                         </p>
                         <p class="text-slate-600 mb-8 leading-relaxed">
                             Over the years, we've helped thousands of families find their dream homes and assisted businesses in securing the perfect commercial spaces. Our success is built on transparency, expertise, and an unwavering commitment to our clients.
@@ -108,7 +108,7 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-12">
                     <h2 class="text-3xl lg:text-4xl font-bold text-slate-900 mb-4">Meet Our Team</h2>
-                    <p class="text-slate-600 max-w-2xl mx-auto">The passionate professionals behind The Core Realtors</p>
+                    <p class="text-slate-600 max-w-2xl mx-auto">The passionate professionals behind Realto</p>
                 </div>
 
                 <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">

@@ -10,7 +10,7 @@
                         </svg>
                     </div>
                     <span class="text-xl font-bold text-gray-800 group-hover:text-blue-600 transition-colors">
-                        The Core <span class="text-blue-600">Realtors</span>
+                        Realto
                     </span>
                 </router-link>
 
