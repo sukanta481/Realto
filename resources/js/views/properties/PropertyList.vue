@@ -6,12 +6,35 @@
                 <h1 class="text-3xl font-bold text-slate-900">Properties</h1>
                 <p class="text-slate-500 mt-1">Your property inventory</p>
             </div>
-            <button class="btn-primary" @click="showPropertyModal = true">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                Add Property
-            </button>
+            <div class="flex items-center gap-3">
+                <!-- View Toggle -->
+                <div class="flex items-center bg-slate-100 rounded-lg p-1">
+                    <button 
+                        @click="viewMode = 'grid'"
+                        class="p-2 rounded-lg transition-colors"
+                        :class="viewMode === 'grid' ? 'bg-white shadow text-indigo-600' : 'text-slate-500 hover:text-slate-700'"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                        </svg>
+                    </button>
+                    <button 
+                        @click="viewMode = 'map'"
+                        class="p-2 rounded-lg transition-colors"
+                        :class="viewMode === 'map' ? 'bg-white shadow text-indigo-600' : 'text-slate-500 hover:text-slate-700'"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                        </svg>
+                    </button>
+                </div>
+                <button class="btn-primary" @click="showPropertyModal = true">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Add Property
+                </button>
+            </div>
         </div>
 
         <!-- Stats -->
@@ -64,7 +87,7 @@
         </div>
 
         <!-- Property Grid -->
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 stagger-children">
+        <div v-if="viewMode === 'grid'" class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 stagger-children">
             <div 
                 v-for="property in properties" 
                 :key="property.id"
@@ -137,6 +160,14 @@
             </div>
         </div>
 
+        <!-- Map View -->
+        <div v-if="viewMode === 'map'" class="card overflow-hidden">
+            <PropertyMap 
+                :properties="properties" 
+                height="600px"
+            />
+        </div>
+
         <!-- Empty State -->
         <div v-if="!loading && properties.length === 0" class="card empty-state">
             <div class="empty-state-icon">
@@ -166,11 +197,13 @@
 import { ref, reactive, onMounted, watch } from 'vue';
 import { propertiesApi } from '../../api';
 import PropertyFormModal from '../../components/common/PropertyFormModal.vue';
+import PropertyMap from '../../components/common/PropertyMap.vue';
 
 const properties = ref([]);
 const stats = ref({ available: 0, sold: 0, rented: 0, hold: 0 });
 const loading = ref(true);
 const showPropertyModal = ref(false);
+const viewMode = ref('grid');
 
 const filters = reactive({
     search: '',
