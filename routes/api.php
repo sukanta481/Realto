@@ -68,6 +68,7 @@ Route::middleware(['auth:sanctum', 'company'])->group(function () {
     Route::prefix('properties')->group(function () {
         Route::get('/', [PropertyController::class, 'index']);
         Route::get('/stats', [PropertyController::class, 'stats']);
+        Route::get('/types', [PropertyController::class, 'types']);
         Route::post('/', [PropertyController::class, 'store']);
         Route::get('/{id}', [PropertyController::class, 'show']);
         Route::put('/{id}', [PropertyController::class, 'update']);

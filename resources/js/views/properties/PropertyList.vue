@@ -68,7 +68,7 @@
             <div 
                 v-for="property in properties" 
                 :key="property.id"
-                @click="$router.push(`/properties/${property.id}`)"
+                @click="$router.push(`/app/properties/${property.id}`)"
                 class="card overflow-hidden cursor-pointer group"
             >
                 <!-- Image -->

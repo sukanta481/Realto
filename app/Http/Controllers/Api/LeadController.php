@@ -7,6 +7,8 @@ use App\Models\Lead;
 use App\Models\LeadStatus;
 use App\Models\Client;
 use App\Models\ActivityLog;
+use App\Events\LeadCreated;
+use App\Events\LeadStatusChanged;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -208,6 +210,9 @@ class LeadController extends Controller
 
         ActivityLog::log('created', "Added new lead: {$lead->name}", $lead);
 
+        // Fire event for webhooks/automations
+        event(new LeadCreated($lead));
+
         $lead->load(['assignedTo:id,name', 'status:id,name,color']);
 
         return response()->json([
@@ -369,8 +374,12 @@ class LeadController extends Controller
         $oldStatus = $lead->status?->name;
         $lead->update(['lead_status_id' => $request->lead_status_id]);
         $lead->load('status:id,name,color');
+        $newStatus = $lead->status->name;
 
-        ActivityLog::log('status_changed', "Changed lead status from {$oldStatus} to {$lead->status->name}", $lead);
+        ActivityLog::log('status_changed', "Changed lead status from {$oldStatus} to {$newStatus}", $lead);
+
+        // Fire event for webhooks/automations
+        event(new LeadStatusChanged($lead, $oldStatus, $newStatus));
 
         return response()->json([
             'success' => true,

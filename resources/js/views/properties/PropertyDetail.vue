@@ -11,6 +11,15 @@
                 <h1 class="text-2xl font-bold text-gray-900">{{ property?.title }}</h1>
                 <p class="text-gray-500">{{ property?.locality }}, {{ property?.city }}</p>
             </div>
+            <button 
+                @click="showEditModal = true" 
+                class="btn-secondary flex items-center gap-2"
+            >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+                Edit
+            </button>
             <span 
                 class="badge"
                 :class="{
@@ -31,9 +40,9 @@
                 <div class="card overflow-hidden">
                     <div class="aspect-video bg-gray-200">
                         <img 
-                            v-if="property?.images?.[0]"
-                            :src="property.images[selectedImage]"
-                            :alt="property.title"
+                            v-if="propertyImages.length > 0"
+                            :src="propertyImages[selectedImage]"
+                            :alt="property?.title"
                             class="w-full h-full object-cover"
                         />
                         <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
@@ -42,9 +51,9 @@
                             </svg>
                         </div>
                     </div>
-                    <div v-if="property?.images?.length > 1" class="p-3 flex gap-2 overflow-x-auto">
+                    <div v-if="propertyImages.length > 1" class="p-3 flex gap-2 overflow-x-auto">
                         <button
-                            v-for="(img, index) in property.images"
+                            v-for="(img, index) in propertyImages"
                             :key="index"
                             @click="selectedImage = index"
                             class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0"
@@ -175,18 +184,38 @@
             </div>
         </div>
     </div>
+    
+    <!-- Edit Modal -->
+    <PropertyFormModal
+        v-model="showEditModal"
+        :property="property"
+        @saved="handlePropertySaved"
+    />
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { propertiesApi } from '../../api';
+import PropertyFormModal from '../../components/common/PropertyFormModal.vue';
 
 const route = useRoute();
 const property = ref(null);
 const matchingLeads = ref([]);
 const selectedImage = ref(0);
 const loading = ref(true);
+const showEditModal = ref(false);
+
+// Compute images from property_images or images array
+const propertyImages = computed(() => {
+    if (property.value?.property_images?.length) {
+        return property.value.property_images.map(img => img.url || img.image_url);
+    }
+    if (property.value?.images?.length) {
+        return property.value.images;
+    }
+    return [];
+});
 
 const formatPrice = (price) => {
     if (!price) return 'Price on Request';
@@ -206,6 +235,11 @@ const fetchProperty = async () => {
     } finally {
         loading.value = false;
     }
+};
+
+const handlePropertySaved = () => {
+    fetchProperty();
+    showEditModal.value = false;
 };
 
 onMounted(fetchProperty);

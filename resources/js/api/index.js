@@ -80,6 +80,7 @@ export const leadsApi = {
 export const propertiesApi = {
     getAll: (params) => api.get('/properties', { params }),
     getStats: () => api.get('/properties/stats'),
+    getTypes: () => api.get('/properties/types'),
     getOne: (id) => api.get(`/properties/${id}`),
     create: (data) => api.post('/properties', data),
     update: (id, data) => api.put(`/properties/${id}`, data),

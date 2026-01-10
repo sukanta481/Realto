@@ -16,38 +16,38 @@ class PublicController extends Controller
     {
         $query = Property::where('is_published', true)
             ->where('is_active', true)
-            ->with(['propertyType', 'images']);
+            ->with(['propertyType', 'propertyImages']);
 
         // Filter by category (residential/commercial)
-        if ($request->has('category')) {
+        if ($request->filled('category')) {
             $query->where('category', $request->category);
         }
 
         // Filter by listing type (sale/rent)
-        if ($request->has('listing_type')) {
+        if ($request->filled('listing_type')) {
             $query->where('listing_type', $request->listing_type);
         }
 
         // Filter by city
-        if ($request->has('city')) {
+        if ($request->filled('city')) {
             $query->where('city', 'like', '%' . $request->city . '%');
         }
 
         // Filter by property type
-        if ($request->has('property_type_id')) {
+        if ($request->filled('property_type_id')) {
             $query->where('property_type_id', $request->property_type_id);
         }
 
         // Filter by price range
-        if ($request->has('min_price')) {
+        if ($request->filled('min_price')) {
             $query->where('price', '>=', $request->min_price);
         }
-        if ($request->has('max_price')) {
+        if ($request->filled('max_price')) {
             $query->where('price', '<=', $request->max_price);
         }
 
         // Filter by BHK
-        if ($request->has('bhk')) {
+        if ($request->filled('bhk')) {
             $query->where('bhk', $request->bhk);
         }
 
@@ -71,7 +71,7 @@ class PublicController extends Controller
     {
         $property = Property::where('is_published', true)
             ->where('is_active', true)
-            ->with(['propertyType', 'images'])
+            ->with(['propertyType', 'propertyImages'])
             ->find($id);
 
         if (!$property) {
@@ -113,7 +113,7 @@ class PublicController extends Controller
         $properties = Property::where('is_published', true)
             ->where('is_active', true)
             ->where('is_featured', true)
-            ->with(['propertyType', 'images'])
+            ->with(['propertyType', 'propertyImages'])
             ->orderBy('created_at', 'desc')
             ->limit(6)
             ->get();

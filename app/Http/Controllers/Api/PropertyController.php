@@ -23,39 +23,39 @@ class PropertyController extends Controller
             ->with(['propertyType:id,name', 'addedBy:id,name']);
 
         // Filters
-        if ($request->has('status')) {
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        if ($request->has('listing_type')) {
+        if ($request->filled('listing_type')) {
             $query->where('listing_type', $request->listing_type);
         }
 
-        if ($request->has('property_type_id')) {
+        if ($request->filled('property_type_id')) {
             $query->where('property_type_id', $request->property_type_id);
         }
 
-        if ($request->has('city')) {
+        if ($request->filled('city')) {
             $query->where('city', $request->city);
         }
 
-        if ($request->has('locality')) {
+        if ($request->filled('locality')) {
             $query->where('locality', 'like', "%{$request->locality}%");
         }
 
-        if ($request->has('bhk')) {
+        if ($request->filled('bhk')) {
             $query->where('bhk', $request->bhk);
         }
 
-        if ($request->has('price_min')) {
+        if ($request->filled('price_min')) {
             $query->where('price', '>=', $request->price_min);
         }
 
-        if ($request->has('price_max')) {
+        if ($request->filled('price_max')) {
             $query->where('price', '<=', $request->price_max);
         }
 
-        if ($request->has('search')) {
+        if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
@@ -64,7 +64,7 @@ class PropertyController extends Controller
             });
         }
 
-        if ($request->has('is_featured')) {
+        if ($request->filled('is_featured')) {
             $query->where('is_featured', $request->boolean('is_featured'));
         }
 
@@ -394,6 +394,43 @@ class PropertyController extends Controller
         return response()->json([
             'success' => true,
             'data' => $stats,
+        ]);
+    }
+
+    /**
+     * Get property types for dropdown.
+     */
+    public function types(Request $request)
+    {
+        $user = $request->user();
+        $companyId = $user->company_id;
+        
+        // Check if PropertyType model exists and has data
+        $types = [];
+        if (class_exists('\App\Models\PropertyType')) {
+            $types = \App\Models\PropertyType::where('company_id', $companyId)
+                ->orderBy('name')
+                ->get(['id', 'name']);
+        }
+        
+        // Return default types if none found
+        if (empty($types) || $types->isEmpty()) {
+            $types = [
+                ['id' => 'apartment', 'name' => 'Apartment'],
+                ['id' => 'villa', 'name' => 'Villa'],
+                ['id' => 'house', 'name' => 'Independent House'],
+                ['id' => 'plot', 'name' => 'Plot / Land'],
+                ['id' => 'commercial', 'name' => 'Commercial Space'],
+                ['id' => 'office', 'name' => 'Office Space'],
+                ['id' => 'shop', 'name' => 'Shop / Showroom'],
+                ['id' => 'penthouse', 'name' => 'Penthouse'],
+                ['id' => 'studio', 'name' => 'Studio Apartment'],
+            ];
+        }
+        
+        return response()->json([
+            'success' => true,
+            'data' => $types,
         ]);
     }
 

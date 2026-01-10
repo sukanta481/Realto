@@ -310,6 +310,65 @@
             </div>
         </nav>
 
+        <!-- Floating Action Button (FAB) -->
+        <div class="fixed bottom-20 lg:bottom-8 right-4 lg:right-8 z-50 group">
+            <!-- Main FAB Button -->
+            <button 
+                @click="fabOpen = !fabOpen"
+                class="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-500/40 hover:shadow-indigo-500/60 flex items-center justify-center transition-all duration-300 hover:scale-110"
+                :class="{ 'rotate-45': fabOpen }"
+            >
+                <svg class="w-7 h-7 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+                </svg>
+            </button>
+            
+            <!-- FAB Menu -->
+            <transition
+                enter-active-class="transition duration-200 ease-out"
+                enter-from-class="opacity-0 translate-y-4 scale-95"
+                enter-to-class="opacity-100 translate-y-0 scale-100"
+                leave-active-class="transition duration-150 ease-in"
+                leave-from-class="opacity-100 translate-y-0 scale-100"
+                leave-to-class="opacity-0 translate-y-4 scale-95"
+            >
+                <div v-if="fabOpen" class="absolute bottom-16 right-0 space-y-2 mb-2">
+                    <!-- Add Lead Button -->
+                    <button 
+                        @click="openAddLead"
+                        class="flex items-center gap-3 px-4 py-3 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 whitespace-nowrap"
+                    >
+                        <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                            </svg>
+                        </div>
+                        <span class="font-semibold text-slate-700">Add Lead</span>
+                    </button>
+                    
+                    <!-- Add Property Button -->
+                    <button 
+                        @click="openAddProperty"
+                        class="flex items-center gap-3 px-4 py-3 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 whitespace-nowrap"
+                    >
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            </svg>
+                        </div>
+                        <span class="font-semibold text-slate-700">Add Property</span>
+                    </button>
+                </div>
+            </transition>
+        </div>
+        
+        <!-- FAB Overlay -->
+        <div 
+            v-if="fabOpen"
+            @click="fabOpen = false"
+            class="fixed inset-0 z-40"
+        ></div>
+
         <!-- Mobile sidebar overlay -->
         <div 
             v-if="sidebarOpen"
@@ -319,6 +378,18 @@
 
         <!-- Search Modal -->
         <SearchModal v-model="showSearch" />
+        
+        <!-- Lead Form Modal (for quick add) -->
+        <LeadFormModal 
+            v-model="showLeadModal" 
+            @saved="onLeadSaved"
+        />
+        
+        <!-- Property Form Modal (for quick add) -->
+        <PropertyFormModal 
+            v-model="showPropertyModal" 
+            @saved="onPropertySaved"
+        />
     </div>
 </template>
 
@@ -327,6 +398,8 @@ import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
 import SearchModal from '../common/SearchModal.vue';
+import LeadFormModal from '../common/LeadFormModal.vue';
+import PropertyFormModal from '../common/PropertyFormModal.vue';
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -334,6 +407,9 @@ const router = useRouter();
 const sidebarOpen = ref(false);
 const showSearch = ref(false);
 const contentMenuOpen = ref(false);
+const fabOpen = ref(false);
+const showLeadModal = ref(false);
+const showPropertyModal = ref(false);
 
 const userInitials = computed(() => {
     const name = authStore.user?.name || '';
@@ -343,5 +419,25 @@ const userInitials = computed(() => {
 const handleLogout = async () => {
     await authStore.logout();
     router.push('/login');
+};
+
+const openAddLead = () => {
+    fabOpen.value = false;
+    showLeadModal.value = true;
+};
+
+const openAddProperty = () => {
+    fabOpen.value = false;
+    showPropertyModal.value = true;
+};
+
+const onLeadSaved = () => {
+    showLeadModal.value = false;
+    // If currently on leads page, the page component will handle refresh
+};
+
+const onPropertySaved = () => {
+    showPropertyModal.value = false;
+    // If currently on properties page, the page component will handle refresh
 };
 </script>
