@@ -47,6 +47,15 @@ class LeadController extends Controller
             $query->where('source', $request->source);
         }
 
+        // Filter for converted leads only (for deal creation)
+        if ($request->filled('is_converted')) {
+            if ($request->is_converted) {
+                $query->whereNotNull('converted_client_id');
+            } else {
+                $query->whereNull('converted_client_id');
+            }
+        }
+
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {

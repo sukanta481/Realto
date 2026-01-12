@@ -141,9 +141,9 @@ class DealController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'property_id' => 'nullable|exists:properties,id',
-            'buyer_id' => 'nullable|exists:clients,id',
+            'buyer_id' => 'nullable|integer', // Can be client_id or lead_id
             'seller_id' => 'nullable|exists:clients,id',
-            'type' => 'required|in:sale,rent',
+            'type' => 'nullable|in:sale,rent',
             'deal_value' => 'required|numeric|min:0',
             'commission_percentage' => 'nullable|numeric|min:0|max:100',
             'commission_amount' => 'nullable|numeric|min:0',
@@ -162,14 +162,62 @@ class DealController extends Controller
             ], 422);
         }
 
+        // Resolve buyer_id - check if it's a client or a lead
+        $buyerId = null;
+        if ($request->buyer_id) {
+            // First check if it's an existing client
+            $client = \App\Models\Client::where('id', $request->buyer_id)
+                ->where('company_id', $user->company_id)
+                ->first();
+            
+            if ($client) {
+                $buyerId = $client->id;
+            } else {
+                // Check if it's a lead and auto-convert to client
+                $lead = \App\Models\Lead::where('id', $request->buyer_id)
+                    ->where('company_id', $user->company_id)
+                    ->first();
+                
+                if ($lead) {
+                    // Create client from lead
+                    $client = \App\Models\Client::create([
+                        'company_id' => $user->company_id,
+                        'lead_id' => $lead->id,
+                        'name' => $lead->name,
+                        'phone' => $lead->phone,
+                        'email' => $lead->email,
+                        'type' => 'buyer',
+                        'assigned_to' => $user->id,
+                    ]);
+                    
+                    // Update lead with converted client id
+                    $lead->update([
+                        'converted_client_id' => $client->id,
+                        'converted_at' => now(),
+                    ]);
+                    
+                    $buyerId = $client->id;
+                }
+            }
+        }
+
+        // Get deal type from property if not provided
+        $dealType = $request->type ?? 'sale';
+        if (!$request->type && $request->property_id) {
+            $property = \App\Models\Property::find($request->property_id);
+            if ($property) {
+                $dealType = $property->listing_type ?? 'sale';
+            }
+        }
+
         $deal = Deal::create([
             'company_id' => $user->company_id,
             'property_id' => $request->property_id,
-            'buyer_id' => $request->buyer_id,
+            'buyer_id' => $buyerId,
             'seller_id' => $request->seller_id,
             'handled_by' => $request->handled_by ?? $user->id,
             'title' => $request->title,
-            'type' => $request->type,
+            'type' => $dealType,
             'deal_value' => $request->deal_value,
             'commission_percentage' => $request->commission_percentage,
             'commission_amount' => $request->commission_amount,

@@ -6,7 +6,7 @@
                 <h1 class="text-2xl font-bold text-gray-900">Deals</h1>
                 <p class="text-gray-500">Track your transactions</p>
             </div>
-            <button class="btn-primary">
+            <button @click="openAddModal" class="btn-primary">
                 <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
@@ -34,15 +34,21 @@
             </div>
         </div>
 
-        <!-- Pipeline View -->
+        <!-- Pipeline View with Drag & Drop -->
         <div class="overflow-x-auto pb-4">
             <div class="flex gap-4" style="min-width: max-content;">
                 <div 
                     v-for="stage in pipeline" 
                     :key="stage.stage"
                     class="w-72 flex-shrink-0"
+                    @dragover.prevent="handleDragOver($event, stage.stage)"
+                    @drop="handleDrop($event, stage.stage)"
+                    @dragleave="handleDragLeave"
                 >
-                    <div class="bg-gray-100 rounded-xl p-3">
+                    <div 
+                        class="bg-gray-100 rounded-xl p-3 min-h-[200px] transition-all duration-200"
+                        :class="{ 'bg-indigo-100 ring-2 ring-indigo-400': dragOverStage === stage.stage }"
+                    >
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center gap-2">
                                 <div 
@@ -60,9 +66,25 @@
                             <div 
                                 v-for="deal in stage.deals" 
                                 :key="deal.id"
-                                class="card p-3 cursor-pointer hover:shadow-md transition-shadow"
+                                class="card p-3 cursor-grab hover:shadow-md transition-all duration-200"
+                                :class="{ 'opacity-50 scale-95': draggedDeal?.id === deal.id }"
+                                draggable="true"
+                                @dragstart="handleDragStart($event, deal, stage.stage)"
+                                @dragend="handleDragEnd"
+                                @click="openEditModal(deal)"
                             >
-                                <p class="font-medium text-gray-900 mb-1">{{ deal.title }}</p>
+                                <div class="flex items-start justify-between">
+                                    <p class="font-medium text-gray-900 mb-1 flex-1">{{ deal.title }}</p>
+                                    <button 
+                                        @click.stop="openEditModal(deal)"
+                                        class="text-gray-400 hover:text-indigo-600 p-1 -m-1"
+                                        title="Edit deal"
+                                    >
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                        </svg>
+                                    </button>
+                                </div>
                                 <p class="text-lg font-bold text-primary-600 mb-2">{{ deal.value }}</p>
                                 <div class="flex items-center justify-between text-sm">
                                     <span class="text-gray-500">{{ deal.property || 'No property' }}</span>
@@ -72,8 +94,9 @@
                                     <span>👤 {{ deal.buyer || 'No buyer' }}</span>
                                 </div>
                             </div>
-                            <div v-if="stage.deals.length === 0" class="text-center py-4 text-gray-400 text-sm">
-                                No deals
+                            <div v-if="stage.deals.length === 0" class="text-center py-8 text-gray-400 text-sm">
+                                <p>No deals</p>
+                                <p class="text-xs mt-1">Drag deals here</p>
                             </div>
                         </div>
                     </div>
@@ -95,13 +118,14 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Commission</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stage</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Payment</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
                         <tr 
                             v-for="deal in deals" 
                             :key="deal.id"
-                            class="hover:bg-gray-50 cursor-pointer"
+                            class="hover:bg-gray-50"
                         >
                             <td class="px-6 py-4">
                                 <p class="font-medium text-gray-900">{{ deal.title }}</p>
@@ -133,17 +157,33 @@
                                     {{ deal.payment_status }}
                                 </span>
                             </td>
+                            <td class="px-6 py-4">
+                                <button 
+                                    @click="openEditModal(deal)"
+                                    class="text-indigo-600 hover:text-indigo-800 font-medium text-sm"
+                                >
+                                    Edit
+                                </button>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+
+    <!-- Deal Form Modal -->
+    <DealFormModal 
+        v-model="showModal"
+        :deal="selectedDeal"
+        @saved="handleDealSaved"
+    />
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
 import { dealsApi } from '../../api';
+import DealFormModal from '../../components/common/DealFormModal.vue';
 
 const deals = ref([]);
 const pipeline = ref([]);
@@ -154,6 +194,13 @@ const stats = ref({
     revenue_this_month: 0,
 });
 const loading = ref(true);
+const showModal = ref(false);
+const selectedDeal = ref(null);
+
+// Drag and drop state
+const draggedDeal = ref(null);
+const dragSourceStage = ref(null);
+const dragOverStage = ref(null);
 
 const formatCurrency = (amount) => {
     if (!amount) return '₹0';
@@ -189,6 +236,84 @@ const fetchDeals = async () => {
         console.error('Failed to fetch deals:', error);
     } finally {
         loading.value = false;
+    }
+};
+
+// Modal handlers
+const openAddModal = () => {
+    selectedDeal.value = null;
+    showModal.value = true;
+};
+
+const openEditModal = (deal) => {
+    selectedDeal.value = deal;
+    showModal.value = true;
+};
+
+const handleDealSaved = () => {
+    fetchDeals();
+    showModal.value = false;
+    selectedDeal.value = null;
+};
+
+// Drag and drop handlers
+const handleDragStart = (event, deal, stage) => {
+    draggedDeal.value = deal;
+    dragSourceStage.value = stage;
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', deal.id);
+};
+
+const handleDragEnd = () => {
+    draggedDeal.value = null;
+    dragSourceStage.value = null;
+    dragOverStage.value = null;
+};
+
+const handleDragOver = (event, stage) => {
+    event.preventDefault();
+    if (stage !== dragSourceStage.value) {
+        dragOverStage.value = stage;
+    }
+};
+
+const handleDragLeave = () => {
+    dragOverStage.value = null;
+};
+
+const handleDrop = async (event, targetStage) => {
+    event.preventDefault();
+    dragOverStage.value = null;
+    
+    if (!draggedDeal.value || targetStage === dragSourceStage.value) {
+        return;
+    }
+
+    const dealId = draggedDeal.value.id;
+    const oldStage = dragSourceStage.value;
+
+    // Optimistic update - move deal in UI immediately
+    const sourceStageData = pipeline.value.find(s => s.stage === oldStage);
+    const targetStageData = pipeline.value.find(s => s.stage === targetStage);
+    
+    if (sourceStageData && targetStageData) {
+        const dealIndex = sourceStageData.deals.findIndex(d => d.id === dealId);
+        if (dealIndex > -1) {
+            const [movedDeal] = sourceStageData.deals.splice(dealIndex, 1);
+            targetStageData.deals.push(movedDeal);
+            sourceStageData.count--;
+            targetStageData.count++;
+        }
+    }
+
+    try {
+        await dealsApi.updateStage(dealId, targetStage);
+        // Refresh to get accurate data
+        fetchDeals();
+    } catch (error) {
+        console.error('Failed to update deal stage:', error);
+        // Revert on error
+        fetchDeals();
     }
 };
 

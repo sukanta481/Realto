@@ -7,27 +7,39 @@
         @close="resetForm"
     >
         <form @submit.prevent="handleSubmit" class="space-y-5">
-            <!-- Property Selection -->
+            <!-- Deal Title -->
             <FormField
-                v-model="form.property_id"
-                type="select"
-                label="Property"
-                placeholder="Select property"
-                :options="propertyOptions"
-                :error="errors.property_id"
+                v-model="form.title"
+                type="text"
+                label="Deal Title"
+                placeholder="e.g., 3BHK Flat Sale - Andheri West"
+                :error="errors.title"
                 required
             />
 
-            <!-- Client Selection -->
-            <FormField
-                v-model="form.client_id"
-                type="select"
-                label="Client"
-                placeholder="Select client"
-                :options="clientOptions"
-                :error="errors.client_id"
-                required
-            />
+            <div class="grid sm:grid-cols-2 gap-5">
+                <!-- Property Selection -->
+                <FormField
+                    v-model="form.property_id"
+                    type="select"
+                    label="Property"
+                    placeholder="Select property"
+                    :options="propertyOptions"
+                    :error="errors.property_id"
+                    required
+                />
+
+                <!-- Client/Buyer Selection -->
+                <FormField
+                    v-model="form.buyer_id"
+                    type="select"
+                    label="Buyer (Won Lead)"
+                    placeholder="Select buyer"
+                    :options="clientOptions"
+                    :error="errors.buyer_id"
+                    required
+                />
+            </div>
 
             <hr class="border-slate-100" />
 
@@ -36,11 +48,11 @@
             <div class="grid sm:grid-cols-2 gap-5">
                 <!-- Deal Amount -->
                 <FormField
-                    v-model="form.amount"
+                    v-model="form.deal_value"
                     type="number"
-                    label="Deal Amount (₹)"
+                    label="Deal Value (₹)"
                     placeholder="10000000"
-                    :error="errors.amount"
+                    :error="errors.deal_value"
                     required
                 />
 
@@ -55,30 +67,12 @@
                     hint="Enter commission percentage (e.g., 2 for 2%)"
                 />
 
-                <!-- Deal Date -->
-                <FormField
-                    v-model="form.deal_date"
-                    type="date"
-                    label="Deal Date"
-                    :error="errors.deal_date"
-                    required
-                />
-
                 <!-- Expected Close Date -->
                 <FormField
                     v-model="form.expected_close_date"
                     type="date"
                     label="Expected Close Date"
                     :error="errors.expected_close_date"
-                />
-
-                <!-- Status -->
-                <FormField
-                    v-model="form.status"
-                    type="select"
-                    label="Deal Status"
-                    :options="statusOptions"
-                    :error="errors.status"
                 />
 
                 <!-- Stage -->
@@ -135,7 +129,7 @@
 import { ref, reactive, computed, watch, onMounted } from 'vue';
 import Modal from './Modal.vue';
 import FormField from './FormField.vue';
-import { dealsApi, propertiesApi, clientsApi } from '../../api';
+import { dealsApi, propertiesApi, leadsApi, clientsApi } from '../../api';
 
 const props = defineProps({
     modelValue: {
@@ -156,51 +150,43 @@ const propertyOptions = ref([]);
 const clientOptions = ref([]);
 
 const form = reactive({
+    title: '',
     property_id: '',
-    client_id: '',
-    amount: '',
+    buyer_id: '',
+    deal_value: '',
     commission_percentage: '2',
-    deal_date: '',
     expected_close_date: '',
-    status: 'pending',
-    stage: 'negotiation',
+    stage: 'open',
     notes: '',
 });
 
 const isEditing = computed(() => !!props.deal?.id);
 
-const statusOptions = [
-    { value: 'pending', label: 'Pending' },
-    { value: 'won', label: 'Won' },
-    { value: 'lost', label: 'Lost' },
-];
-
 const stageOptions = [
+    { value: 'open', label: 'Open' },
     { value: 'negotiation', label: 'Negotiation' },
     { value: 'agreement', label: 'Agreement' },
-    { value: 'token_received', label: 'Token Received' },
     { value: 'documentation', label: 'Documentation' },
-    { value: 'payment_pending', label: 'Payment Pending' },
-    { value: 'completed', label: 'Completed' },
+    { value: 'closed_won', label: 'Closed Won' },
+    { value: 'closed_lost', label: 'Closed Lost' },
 ];
 
 const calculatedCommission = computed(() => {
-    if (form.amount && form.commission_percentage) {
-        return (parseFloat(form.amount) * parseFloat(form.commission_percentage)) / 100;
+    if (form.deal_value && form.commission_percentage) {
+        return (parseFloat(form.deal_value) * parseFloat(form.commission_percentage)) / 100;
     }
     return 0;
 });
 
 const resetForm = () => {
     Object.assign(form, {
+        title: '',
         property_id: '',
-        client_id: '',
-        amount: '',
+        buyer_id: '',
+        deal_value: '',
         commission_percentage: '2',
-        deal_date: new Date().toISOString().split('T')[0],
         expected_close_date: '',
-        status: 'pending',
-        stage: 'negotiation',
+        stage: 'open',
         notes: '',
     });
     Object.keys(errors).forEach(key => delete errors[key]);
@@ -209,12 +195,18 @@ const resetForm = () => {
 const validateForm = () => {
     Object.keys(errors).forEach(key => delete errors[key]);
     
+    if (!form.title) errors.title = 'Title is required';
     if (!form.property_id) errors.property_id = 'Property is required';
-    if (!form.client_id) errors.client_id = 'Client is required';
-    if (!form.amount) errors.amount = 'Amount is required';
-    if (!form.deal_date) errors.deal_date = 'Deal date is required';
+    if (!form.buyer_id) errors.buyer_id = 'Buyer is required';
+    if (!form.deal_value) errors.deal_value = 'Deal value is required';
     
     return Object.keys(errors).length === 0;
+};
+
+// Get deal type from selected property
+const getSelectedPropertyType = () => {
+    const selectedProperty = propertyOptions.value.find(p => p.value == form.property_id);
+    return selectedProperty?.listing_type || 'sale';
 };
 
 const handleSubmit = async () => {
@@ -223,9 +215,15 @@ const handleSubmit = async () => {
     loading.value = true;
     try {
         const payload = {
-            ...form,
-            amount: parseFloat(form.amount),
-            commission_percentage: parseFloat(form.commission_percentage),
+            title: form.title,
+            property_id: form.property_id,
+            buyer_id: form.buyer_id,
+            type: getSelectedPropertyType(), // Get type from property
+            deal_value: parseFloat(form.deal_value),
+            commission_percentage: form.commission_percentage ? parseFloat(form.commission_percentage) : null,
+            expected_close_date: form.expected_close_date || null,
+            stage: form.stage,
+            notes: form.notes || null,
         };
 
         if (isEditing.value) {
@@ -249,51 +247,55 @@ const handleSubmit = async () => {
 
 const fetchProperties = async () => {
     try {
-        const response = await propertiesApi.getAll({ status: 'available' });
+        const response = await propertiesApi.getAll();
         propertyOptions.value = response.data.data.map(p => ({
             value: p.id,
             label: `${p.title} - ₹${(p.price / 100000).toFixed(1)}L`,
+            listing_type: p.listing_type || 'sale',
         }));
     } catch (error) {
         console.error('Failed to fetch properties:', error);
     }
 };
 
+// Fetch clients/leads for buyer dropdown
 const fetchClients = async () => {
     try {
-        const response = await clientsApi.getAll();
-        clientOptions.value = response.data.data.map(c => ({
-            value: c.id,
-            label: `${c.name} - ${c.phone}`,
-        }));
+        // First try to get clients from the clients table
+        const clientsResponse = await clientsApi.getAll();
+        if (clientsResponse.data.data && clientsResponse.data.data.length > 0) {
+            clientOptions.value = clientsResponse.data.data.map(c => ({
+                value: c.id,
+                label: `${c.name} - ${c.phone || c.email || ''}`,
+            }));
+        } else {
+            // Fallback: No clients yet, show all leads instead
+            const leadsResponse = await leadsApi.getAll();
+            clientOptions.value = leadsResponse.data.data.map(c => ({
+                value: c.id,
+                label: `${c.name} - ${c.phone}`,
+            }));
+        }
     } catch (error) {
         console.error('Failed to fetch clients:', error);
+        // Fallback to leads on error
+        try {
+            const response = await leadsApi.getAll();
+            clientOptions.value = response.data.data.map(c => ({
+                value: c.id,
+                label: `${c.name} - ${c.phone}`,
+            }));
+        } catch (e) {
+            console.error('Failed to fetch leads:', e);
+        }
     }
 };
 
-// Set default date on mount
+// Fetch data on mount
 onMounted(() => {
-    form.deal_date = new Date().toISOString().split('T')[0];
     fetchProperties();
     fetchClients();
 });
-
-// Populate form when editing
-watch(() => props.deal, (deal) => {
-    if (deal) {
-        Object.assign(form, {
-            property_id: deal.property_id || '',
-            client_id: deal.client_id || '',
-            amount: deal.amount || '',
-            commission_percentage: deal.commission_percentage || '2',
-            deal_date: deal.deal_date?.split(' ')[0] || '',
-            expected_close_date: deal.expected_close_date?.split(' ')[0] || '',
-            status: deal.status || 'pending',
-            stage: deal.stage || 'negotiation',
-            notes: deal.notes || '',
-        });
-    }
-}, { immediate: true });
 
 // Fetch data when modal opens
 watch(() => props.modelValue, (isOpen) => {
@@ -302,4 +304,20 @@ watch(() => props.modelValue, (isOpen) => {
         fetchClients();
     }
 });
+
+// Populate form when editing
+watch(() => props.deal, (deal) => {
+    if (deal) {
+        Object.assign(form, {
+            title: deal.title || '',
+            property_id: deal.property_id || '',
+            buyer_id: deal.buyer_id || '',
+            deal_value: deal.deal_value || '',
+            commission_percentage: deal.commission_percentage || '2',
+            expected_close_date: deal.expected_close_date?.split('T')[0] || '',
+            stage: deal.stage || 'open',
+            notes: deal.notes || '',
+        });
+    }
+}, { immediate: true });
 </script>
