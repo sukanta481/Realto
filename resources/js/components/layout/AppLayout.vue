@@ -276,32 +276,31 @@
         <!-- Mobile bottom nav -->
         <nav class="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-slate-200/80 lg:hidden safe-area-bottom">
             <div class="flex justify-around py-2">
-                <router-link to="/" class="flex flex-col items-center px-4 py-2 text-slate-400" :class="{ 'text-indigo-600': $route.name === 'dashboard' }">
+                <router-link to="/app" class="flex flex-col items-center px-4 py-2 text-slate-400" :class="{ 'text-indigo-600': $route.path === '/app' }">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                     </svg>
                     <span class="text-xs mt-1 font-medium">Home</span>
                 </router-link>
-                <router-link to="/leads" class="flex flex-col items-center px-4 py-2 text-slate-400" :class="{ 'text-indigo-600': $route.path.startsWith('/leads') }">
+                <router-link to="/app/leads" class="flex flex-col items-center px-4 py-2 text-slate-400" :class="{ 'text-indigo-600': $route.path.startsWith('/app/leads') }">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path>
                     </svg>
                     <span class="text-xs mt-1 font-medium">Leads</span>
                 </router-link>
-                <button class="flex flex-col items-center -mt-5">
-                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);">
-                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
-                        </svg>
-                    </div>
-                </button>
-                <router-link to="/properties" class="flex flex-col items-center px-4 py-2 text-slate-400" :class="{ 'text-indigo-600': $route.path.startsWith('/properties') }">
+                <router-link to="/app/follow-ups" class="flex flex-col items-center px-4 py-2 text-slate-400" :class="{ 'text-indigo-600': $route.path.startsWith('/app/follow-ups') }">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <span class="text-xs mt-1 font-medium">Follow-ups</span>
+                </router-link>
+                <router-link to="/app/properties" class="flex flex-col items-center px-4 py-2 text-slate-400" :class="{ 'text-indigo-600': $route.path.startsWith('/app/properties') }">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                     </svg>
                     <span class="text-xs mt-1 font-medium">Properties</span>
                 </router-link>
-                <router-link to="/deals" class="flex flex-col items-center px-4 py-2 text-slate-400" :class="{ 'text-indigo-600': $route.path.startsWith('/deals') }">
+                <router-link to="/app/deals" class="flex flex-col items-center px-4 py-2 text-slate-400" :class="{ 'text-indigo-600': $route.path.startsWith('/app/deals') }">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
