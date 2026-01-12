@@ -91,6 +91,7 @@
                             >
                                 <!-- Funnel Bar -->
                                 <div 
+                                    @click="navigateToLeads(stage)"
                                     class="relative h-14 flex items-center justify-center transition-all duration-300 hover:scale-105 cursor-pointer"
                                     :style="{ 
                                         width: getFunnelWidth(index) + '%',
@@ -229,9 +230,11 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import { dashboardApi } from '../api';
 
+const router = useRouter();
 const authStore = useAuthStore();
 
 const stats = ref({
@@ -327,6 +330,14 @@ const getConversionColor = (index) => {
     if (rate >= 50) return 'text-emerald-400';
     if (rate >= 25) return 'text-amber-400';
     return 'text-rose-400';
+};
+
+// Navigate to leads page with status filter
+const navigateToLeads = (stage) => {
+    router.push({
+        path: '/app/leads',
+        query: { status_id: stage.id }
+    });
 };
 
 // Get drop-off percentage between stages

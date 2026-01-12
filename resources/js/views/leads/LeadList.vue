@@ -294,8 +294,11 @@
 
 <script setup>
 import { ref, reactive, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { leadsApi } from '../../api';
 import LeadFormModal from '../../components/common/LeadFormModal.vue';
+
+const route = useRoute();
 
 const viewMode = ref('table');
 const leads = ref([]);
@@ -448,6 +451,10 @@ const handleLeadSaved = () => {
 };
 
 onMounted(() => {
+    // Check for status filter from query params (e.g., from funnel click)
+    if (route.query.status_id) {
+        filters.status_id = route.query.status_id;
+    }
     fetchLeads();
     fetchKanban();
 });
